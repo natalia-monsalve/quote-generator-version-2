@@ -23,25 +23,31 @@ function newQuoteFromAPI() {
   // Pick a random quote from apiQuotes array 
   const quote = apiQuotes[Math.floor(Math.random() * apiQuotes.length)];
   console.log(quote);
-  // If author is null, add 'Unknown'
-  if (!quote.author) {
-    authorText.textContent = 'Unknown';
-  } else {
-    authorText.textContent = quote.author;
-  }
-  // Dynamically reduce font size for long quotes
-  if (quote.text.length > 120) {
-    quoteText.classList.add('long-quote');
-  } else {
-    quoteText.classList.remove('long-quote');
-  }
-  quoteText.innerText = quote.text;
+  return quote;
 }
 
 function newQuoteLocally() {
   // Pick a random quote from localQuotes array 
   const quote = localQuotes[Math.floor(Math.random() * localQuotes.length)];
   console.log(quote);
+  return quote;
+}
+
+async function getQuotesFromAPI() {
+  let quote;
+  showLoadingSpinner();
+  const apiUrl = 'https://type.fit/api/quotes';
+  try {
+    const response = await fetch(apiUrl);
+    apiQuotes = await response.json();
+    quote = newQuoteFromAPI();
+    removeLoadingSpinner();
+  } catch (error) {
+    console.error(error);
+    console.log('Quote from localQuotes array');
+    quote = newQuoteLocally();
+    removeLoadingSpinner();
+  }
   // If author is null, add 'Unknown'
   if (!quote.author) {
     authorText.textContent = 'Unknown';
@@ -55,21 +61,6 @@ function newQuoteLocally() {
     quoteText.classList.remove('long-quote');
   }
   quoteText.innerText = quote.text;
-}
-
-async function getQuotesFromAPI() {
-  showLoadingSpinner();
-  const apiUrl = 'https://type.fit/api/quotes';
-  try {
-    const response = await fetch(apiUrl);
-    apiQuotes = await response.json();
-    newQuoteFromAPI();
-    removeLoadingSpinner();
-  } catch (error) {
-    console.log('Quote from localQuotes array');
-    newQuoteLocally();
-    removeLoadingSpinner();
-  }
 }
 
 // Tweet Quote
